@@ -1,0 +1,27 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+*.orig
+*.avant_symboles
+app_backup*.py
+rapport_*.txt
+*.spec
+build/
+dist/
+
+# Sauvegardes et anciennes versions
+*backup*.py
+*.bak
+*.orig
+*.avant_symboles
+
+# Rapports générés et informations locales
+rapport*.txt
+*.log
+
+# Environnement et fichiers temporaires
+.coverage
+htmlcov/
+.DS_Store
