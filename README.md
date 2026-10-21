@@ -36,8 +36,8 @@ Testé avec : Windows 11, WSL 2, Ubuntu 26.04, Python 3.14, psutil 7.2.2, proces
 ```bash
 sudo apt update
 sudo apt install python3-venv python3-tk git
-git clone https://github.com/<votre-compte>/avs-computer-assistant-linux.git
-cd avs-computer-assistant-linux
+git clone https://github.com/BOROBOlouismarvin22/avs-linux.git
+cd avs-linux
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
