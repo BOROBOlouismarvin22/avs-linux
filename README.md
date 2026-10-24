@@ -11,6 +11,7 @@ Outil de diagnostic informatique avec interface graphique (Python et Tkinter). I
 - **Mémoire, processeur, stockage** : mesures et jugement (OK, faible, critique).
 - **Processus** : les 10 processus les plus gourmands.
 - **Réseau** : test de connexion (ping), résolution DNS, latence et perte de paquets.
+- **Réseau détaillé** : interfaces (état, IP, MAC), passerelle, serveurs DNS et ports TCP en écoute.
 - **Programmes au démarrage**.
 - **Causes probables et actions recommandées**.
 - **Informations système** : processeur, machine, carte graphique.
@@ -30,6 +31,8 @@ Testé avec : Windows 11, WSL 2, Ubuntu 26.04, Python 3.14, psutil 7.2.2, proces
 - L'outil juge « limitée » la mémoire de Linux (1,8 Go), qui n'est que la part prêtée par Windows : il devrait détecter qu'il tourne dans une machine virtuelle.
 - Les programmes au démarrage sont lus dans les fichiers d'autostart ; les services `systemd` sont à ajouter.
 - La sonde batterie n'a pas encore été examinée pour Linux.
+- La page « Réseau détaillé » n'est pas encore intégrée au rapport texte.
+- La sonde réseau détaillée prévoit une branche Windows : testée par simulation et vérifiée à la main sur Windows 11 (sonde seule, sans l'interface).
 
 ## Installation
 
@@ -87,12 +90,13 @@ Principe : le code qui lit la machine est isolé dans `avs/system/`. L'interface
 | Carte graphique | Registre Windows | `lspci`, ou `/dev/dxg` sous WSL |
 | Programmes au démarrage | Clés Run du registre | Fichiers `.desktop` d'autostart |
 | Test réseau | `ping -n` | `ping -c -W` |
+| Passerelle et DNS | `route print`, PowerShell | `/proc/net/route`, `/etc/resolv.conf` |
 
 Les scripts `tools/patch_linux.py` et `tools/patch_reseau.py` ont servi à appliquer ces changements sur une copie du projet. Ils sont déjà appliqués dans ce dépôt.
 
 ## Tests
 
-Le dossier `tests/` contient des tests automatiques de la logique de diagnostic (`pytest`). Les 83 tests passent sous Linux (Python 3.14). Pour les lancer :
+Le dossier `tests/` contient des tests automatiques de la logique de diagnostic (`pytest`). Les 100 tests passent sous Linux (Python 3.14), dont 17 pour la sonde réseau détaillée. Pour les lancer :
 
 ```bash
 pip install pytest
