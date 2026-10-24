@@ -35,6 +35,7 @@ from avs.system.hardware_info_probe import (
     get_graphics_info,
     get_machine_info,
 )
+from avs.system.network_details_probe import get_network_details
 
 
 # =========================================================
@@ -270,6 +271,7 @@ class AVSApplication(tk.Tk):
             ("▣", "Stockage", self.show_disk),
             ("≡", "Processus", self.show_processes),
             ("◎", "Réseau", self.show_network),
+            ("●", "Réseau détaillé", self.show_network_details),
             ("▶", "Démarrage", self.show_startup),
             ("△", "Causes probables", self.show_causes),
             ("✓", "Actions", self.show_actions),
@@ -2597,6 +2599,96 @@ FIN DU RAPPORT AVS
     # =====================================================
     # INFORMATIONS SYSTEME
     # =====================================================
+
+    def show_network_details(self):
+        """Affiche les détails du réseau : interfaces, passerelle, DNS et ports en écoute."""
+
+        self.page_title.config(
+            text="● Réseau détaillé"
+        )
+
+        self._clear_content()
+
+        self.status_label.config(
+            text="Lecture des informations réseau..."
+        )
+
+        self.update_idletasks()
+
+        details = get_network_details()
+
+        self.status_label.config(
+            text="Interfaces, passerelle, DNS et ports en écoute."
+        )
+
+        self._create_info_card(
+            0,
+            0,
+            "PASSERELLE",
+            details.gateway or "Non disponible",
+            "OK" if details.gateway else "CRITIQUE",
+            "Adresse du routeur par lequel sort le trafic.",
+        )
+
+        self._create_info_card(
+            0,
+            1,
+            "SERVEURS DNS",
+            ", ".join(details.dns_servers) or "Non disponible",
+            "OK" if details.dns_servers else "CRITIQUE",
+            "Serveurs qui traduisent les noms de sites en adresses.",
+        )
+
+        def format_speed(speed):
+            if not speed:
+                return "vitesse inconnue"
+            if speed >= 1000:
+                return str(round(speed / 1000, 1)).rstrip("0").rstrip(".") + " Gb/s"
+            return str(speed) + " Mb/s"
+
+        lines = []
+        for interface in details.interfaces[:8]:
+            state = "active" if interface.is_up else "inactive"
+            address = interface.ipv4 or "sans adresse IPv4"
+            mac = interface.mac or "inconnue"
+            lines.append(
+                interface.name + "   |   " + state + "   |   " + address
+                + "   |   MAC " + mac + "   |   " + format_speed(interface.speed_mbps)
+            )
+        if len(details.interfaces) > 8:
+            lines.append("... et " + str(len(details.interfaces) - 8) + " autre(s) interface(s)")
+
+        self._create_information_box(
+            1,
+            "INTERFACES RÉSEAU",
+            "\n".join(lines) or "Aucune interface détectée.",
+        )
+
+        port_lines = []
+        for port in details.listening_ports[:15]:
+            port_lines.append(
+                "Port " + str(port.port) + "   |   " + port.address
+                + "   |   " + (port.process or "processus non visible")
+            )
+        if len(details.listening_ports) > 15:
+            port_lines.append("... et " + str(len(details.listening_ports) - 15) + " autre(s) port(s)")
+
+        message = "\n".join(port_lines) or "Aucun port TCP en écoute détecté."
+        if details.process_info_limited:
+            message += "\n\nCertains noms de processus ne sont pas visibles sans droits administrateur."
+
+        self._create_information_box(
+            2,
+            "PORTS TCP EN ÉCOUTE",
+            message,
+        )
+
+        if details.environment_note:
+            self._create_information_box(
+                3,
+                "À SAVOIR",
+                details.environment_note,
+            )
 
     def show_hardware_info(self):
         """Affiche les informations matérielles statiques de la machine."""
