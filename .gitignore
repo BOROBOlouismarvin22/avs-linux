@@ -25,3 +25,5 @@ rapport*.txt
 .coverage
 htmlcov/
 .DS_Store
+*.avant_reseau
+*.avant_correctif
